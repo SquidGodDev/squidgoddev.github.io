@@ -19,7 +19,7 @@
     <input type="text" id="levelCodeInput"></input> <button onclick="processLevelCodeInput()">Beep</button>
 </body>
 <script>
-    const spaceWaitMS = 50;
+    const spaceWaitMS = 100;
     const endBeepMS = 500;
 
     async function beepMS(ms) {
@@ -47,7 +47,6 @@
         await beepMS(endBeepMS);
         await sleep(spaceWaitMS);
         for (let i in lowercaseCode) {
-            console.log("here");
             const char = lowercaseCode[i];
             await getBeepPattern(char);
         }
