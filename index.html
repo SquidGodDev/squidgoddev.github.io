@@ -8,17 +8,86 @@
 <body>
     Website Test
     <ul>
+        <li><button onclick="beepMS(50)">50ms</button></li>
         <li><button onclick="beepMS(100)">100ms</button></li>
         <li><button onclick="beepMS(200)">200ms</button></li>
         <li><button onclick="beepMS(300)">300ms</button></li>
         <li><button onclick="beepMS(400)">400ms</button></li>
         <li><button onclick="beepMS(500)">500ms</button></li>
     </ul>
+    <br>
+    <input type="text" id="levelCodeInput"></input> <button onclick="processLevelCodeInput()">Beep</button>
 </body>
 <script>
-    function beepMS(ms) {
-        let snd = new Audio("tones/" + ms + "ms.wav")
-        snd.play()
+    const spaceWaitMS = 50;
+    const endBeepMS = 500;
+
+    async function beepMS(ms) {
+        const snd = new Audio("tones/" + ms + "ms.wav");
+        snd.play();
+        await sleep(ms);
+    }
+
+    function sleep(ms) {
+       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function processLevelCodeInput() {
+        const inputText = document.getElementById("levelCodeInput").value;
+        beepOutCode(inputText);
+    }
+
+    async function beepOutCode(codeString) {
+        const lowercaseCode = codeString.toLowerCase();
+        if (!verifyCode(lowercaseCode)) {
+            alert("Code is invalid");
+            return;
+        }
+
+        await beepMS(endBeepMS);
+        await sleep(spaceWaitMS);
+        for (let i in lowercaseCode) {
+            console.log("here");
+            const char = lowercaseCode[i];
+            await getBeepPattern(char);
+        }
+        await beepMS(endBeepMS);
+    }
+
+    function verifyCode(codeString) {
+        for (let i in codeString) {
+            const char = codeString[i];
+            const charCode = char.charCodeAt();
+            const aCharCode = 'a'.charCodeAt();
+            const zCharCode = 'z'.charCodeAt();
+            if (charCode < aCharCode || charCode > zCharCode) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    async function getBeepPattern(character) {
+        const charCode = character.charCodeAt();
+        const adjustedCharCode = charCode - 'a'.charCodeAt();
+        let base3Code = adjustedCharCode.toString(3);
+        if (base3Code.length === 2) {
+            base3Code = "0" + base3Code;
+        } else if (base3Code.length === 1) {
+            base3Code = "00" + base3Code;
+        }
+
+        for (i=0; i < 3; i++) {
+            const curNum = base3Code[i];
+            if (curNum == 0) {
+                await beepMS(50);
+            } else if (curNum == 1) {
+                await beepMS(100);
+            } else if (curNum == 2) {
+                await beepMS(200);
+            }
+            await sleep(spaceWaitMS);
+        }
     }
 </script>
 </html>
