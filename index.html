@@ -10,7 +10,9 @@
     <ul>
         <li><button onclick="beepMS(50)">50ms</button></li>
         <li><button onclick="beepMS(100)">100ms</button></li>
+        <li><button onclick="beepMS(150)">150ms</button></li>
         <li><button onclick="beepMS(200)">200ms</button></li>
+        <li><button onclick="beepMS(250)">250ms</button></li>
         <li><button onclick="beepMS(300)">300ms</button></li>
         <li><button onclick="beepMS(400)">400ms</button></li>
         <li><button onclick="beepMS(500)">500ms</button></li>
@@ -81,9 +83,9 @@
             if (curNum == 0) {
                 await beepMS(50);
             } else if (curNum == 1) {
-                await beepMS(100);
+                await beepMS(150);
             } else if (curNum == 2) {
-                await beepMS(200);
+                await beepMS(250);
             }
             await sleep(spaceWaitMS);
         }
