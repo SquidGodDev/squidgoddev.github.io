@@ -18,11 +18,14 @@
         <li><button onclick="beepMS(500)">500ms</button></li>
     </ul>
     <br>
-    <input type="text" id="levelCodeInput"></input> <button onclick="processLevelCodeInput()">Beep</button>
+    <input type="text" id="levelCodeInput"></input> <button onclick="processLevelCodeInput()">Send Level Data</button>
+    <br>
+    <button onclick="stopBeeping()">Stop</button>
 </body>
 <script>
     const spaceWaitMS = 100;
     const endBeepMS = 500;
+    let beepStop = false;
 
     async function beepMS(ms) {
         const snd = new Audio("tones/" + ms + "ms.wav");
@@ -68,6 +71,10 @@
         return true;
     }
 
+    function stopBeeping() {
+        beepStop = true;
+    }
+
     async function getBeepPattern(character) {
         const charCode = character.charCodeAt();
         const adjustedCharCode = charCode - 'a'.charCodeAt();
@@ -79,6 +86,10 @@
         }
 
         for (i=0; i < 3; i++) {
+            if (beepStop) {
+                beepStop = false;
+                resolve();
+            }
             const curNum = base3Code[i];
             if (curNum == 0) {
                 await beepMS(50);
