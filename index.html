@@ -1,13 +1,153 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    @font-face {
+        font-family: inter;
+        src: url(fonts/Inter.ttf);
+    }
+
+    body {
+        background-color: #262626;
+        font-family: inter;
+        color: #EDEDED;
+        font-size: 24px;
+    }
+
+    .base-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+        /* align-content: space-between; */
+        min-height: 80vh;
+        /* gap: 60px; */
+        /* width: 100vw; */
+    }
+
+    @media only screen and (min-width: 768px) {
+        /* For desktop: */
+        /* .title-text {
+            font-size: 12px;
+        }
+
+        .description-text {
+            font-size: 12px;
+        }
+
+        .transfer-button {
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+        } */
+    }
+
+    .title-text {
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .description-text {
+        font-weight: normal;
+        text-align: center;
+        overflow-wrap: break-word;
+        inline-size: 50vw;
+    }
+
+    /* Buttons */
+    .button {
+        border: none;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        padding: 8px 24px;
+        border-radius: 30px;
+        font-size: 30px;
+        position: absolute;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+        width: fit-content;
+        --animate-duration: 500ms;
+    }
+
+    .transfer-button {
+        background-color: #008BD2;
+        z-index: 2;
+    }
+
+    .transfer-button:hover {
+        background-color: #0980bd;
+    }
+
+    .transfer-button:active {
+        background-color: #116996;
+    }
+
+    .cancel-button {
+        background-color: #FB0042;
+    }
+
+    .cancel-button:hover {
+        background-color: #e00942;
+    }
+
+    .cancel-button:active {
+        background-color: #bd113e;
+    }
+
+    /* Loading Bar */
+    .loading-bar {
+        width: 30px;
+        height: 100px;
+    }
+
+    .ldBar path {
+        stroke-width: 5;
+        stroke-linecap: round;
+    }
+
+    .ldBar-label {
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
 <body>
-    Website Test
-    <ul>
+    <link rel="stylesheet" type="text/css" href="libraries/loading-bar.min.css"/>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <script type="text/javascript" src="libraries/loading-bar.min.js"></script>
+    <div class="base-container">
+        <div>
+            <div class="title-text">
+                Level Code
+            </div>
+            <div id="levelCode" class="description-text">
+                abrdddaammpaafaaoaaoaaobabsdzddyddzddbbbabrdddaammpaafaaoaaoaaobabsdzddabrdddaammpaafaaoaaoaaobabsdz
+            </div>
+        </div>
+        <div>
+            <div class="title-text">
+                Level Hash
+            </div>
+            <div class="description-text">
+                532bac3972dc
+            </div>
+        </div>
+        <div>
+            <button id="transferButton" class="button transfer-button" onclick="processLevelCodeInput()">Transfer</button>
+            <button id="cancelButton" class="button cancel-button" onclick="stopBeeping()">Cancel</button>
+        </div>
+        <div id="loadingBar" class="ldBar" data-value="0" style="width: 50%; height: 30px" data-stroke="#56D92E" data-stroke-trail="#4D514B"></div>
+    </div>
+    <!-- <ul>
         <li><button onclick="beepMS(50)">50ms</button></li>
         <li><button onclick="beepMS(100)">100ms</button></li>
         <li><button onclick="beepMS(150)">150ms</button></li>
@@ -22,12 +162,21 @@
     <br>
     <button onclick="processLevelCodeInput()">Send Level Data</button>
     <br>
-    <button onclick="stopBeeping()">Stop</button>
+    <button onclick="stopBeeping()">Stop</button> -->
+    
 </body>
 <script>
     const spaceWaitMS = 100;
     const endBeepMS = 500;
     let beepStop = false;
+
+    const queryString = window.location.search;
+    const levelCode = new URLSearchParams(queryString).get('code');
+    if (!levelCode) {
+        document.getElementById("levelCode").textContent = "Missing Code";
+    } else {
+        document.getElementById("levelCode").textContent = levelCode;
+    }
 
     async function beepMS(ms) {
         const snd = new Audio("tones/" + ms + "ms.wav");
@@ -39,25 +188,68 @@
        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    function switchButtonToTransfer() {
+        const buttonElement = document.querySelector('.button');
+        buttonElement.style.setProperty('--animate-duration', '1s');
+        const transferButton = document.getElementById("transferButton");
+        transferButton.classList.remove('animate__animated', 'animate__fadeOutDown');
+        transferButton.classList.add('animate__animated', 'animate__fadeInDown');
+        transferButton.disabled = false;
+        const cancelButton = document.getElementById("cancelButton");
+        cancelButton.classList.remove('animate__animated', 'animate__fadeInDown');
+        cancelButton.classList.add('animate__animated', 'animate__fadeOutDown');
+        cancelButton.disabled = true;
+    }
+
+    function switchButtonToCancel() {
+        const buttonElement = document.querySelector('.button');
+        buttonElement.style.setProperty('--animate-duration', '0.5s');
+        const transferButton = document.getElementById("transferButton");
+        transferButton.classList.remove('animate__animated', 'animate__fadeInDown');
+        transferButton.classList.add('animate__animated', 'animate__fadeOutDown');
+        transferButton.disabled = true;
+        const cancelButton = document.getElementById("cancelButton");
+        cancelButton.classList.remove('animate__animated', 'animate__fadeOutDown');
+        cancelButton.classList.add('animate__animated', 'animate__fadeInDown');
+        cancelButton.disabled = false;
+    }
+
     function processLevelCodeInput() {
-        const inputText = document.getElementById("levelCodeInput").value;
-        beepOutCode(inputText);
+        const queryString = window.location.search;
+        const levelCode = new URLSearchParams(queryString).get('code');
+
+        switchButtonToCancel();
+
+        beepOutCode(levelCode);
     }
 
     async function beepOutCode(codeString) {
-        const lowercaseCode = codeString.toLowerCase();
-        if (!verifyCode(lowercaseCode)) {
+        if (!codeString) {
             alert("Code is invalid");
+            switchButtonToTransfer();
             return;
         }
 
+        beepStop = false;
+        const lowercaseCode = codeString.toLowerCase();
+        if (!verifyCode(lowercaseCode)) {
+            alert("Code is invalid");
+            switchButtonToTransfer();
+            return;
+        }
+
+        const codeLength = codeString.length;
+        const loadingBar = document.getElementById("loadingBar").ldBar;
+        loadingBar.set(0, false);
         await beepMS(endBeepMS);
         await sleep(spaceWaitMS);
-        for (let i in lowercaseCode) {
+        for (let i = 0; i < codeLength; i++) {
             const char = lowercaseCode[i];
             await getBeepPattern(char);
+            loadingBar.set(Math.floor((i + 1) / codeLength * 100), false);
         }
         await beepMS(endBeepMS);
+        switchButtonToTransfer();
     }
 
     function verifyCode(codeString) {
@@ -75,6 +267,7 @@
 
     function stopBeeping() {
         beepStop = true;
+        switchButtonToTransfer();
     }
 
     async function getBeepPattern(character) {
